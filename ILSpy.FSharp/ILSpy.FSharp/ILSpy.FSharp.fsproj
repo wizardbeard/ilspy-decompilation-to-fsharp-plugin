@@ -8,7 +8,7 @@
     <ProjectGuid>d47ceec0-ce96-42d0-9208-35b436e1a588</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>ILSpy.FSharp</RootNamespace>
-    <AssemblyName>ILSpy.FSharp</AssemblyName>
+    <AssemblyName>ILSpy.FSharp.Plugin</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <Name>ILSpy.FSharp</Name>
   </PropertyGroup>
