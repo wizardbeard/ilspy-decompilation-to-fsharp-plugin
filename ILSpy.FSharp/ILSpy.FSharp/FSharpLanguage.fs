@@ -20,15 +20,16 @@ type FSharpLanguage() =
         with get() = "FSharp"
     
     override this.FileExtension
-        with get() = ".txt"
+        with get() = ".fs"
     
     override this.DecompileMethod(methodDefinition:MethodDefinition, output: ITextOutput, options: DecompilationOptions) = 
         if methodDefinition.Body <> null then
             output.WriteLine ("Size of method: " + methodDefinition.Body.CodeSize.ToString() + " bytes")
             
             let smartOutput = output :?> ISmartTextOutput
-            if smartOutput <> null then
-                
+
+            if smartOutput <> null
+            then
                 smartOutput.AddButton(null, "Click me!", new RoutedEventHandler(fun sender e -> (sender :?> Button).Content <- "I was clicked!"))
                 smartOutput.WriteLine()
             
@@ -36,6 +37,6 @@ type FSharpLanguage() =
             c.Settings <- options.DecompilerSettings
             c.CurrentType <- methodDefinition.DeclaringType
             let b = new AstBuilder(c)
-            b.AddMethod(methodDefinition)
+            b.AddMethod methodDefinition
             b.RunTransformations()
             output.WriteLine("Decompiled AST has " + b.CompilationUnit.DescendantsAndSelf.Count().ToString() + " nodes")
