@@ -11,7 +11,7 @@ open ICSharpCode.ILSpy
 open ICSharpCode.NRefactory.CSharp
 open Mono.Cecil
 
-//[<Export(typeof(Language))>]
+[<Export(typeof<Language>)>]
 type FSharpLanguage() =
     
     inherit Language()
