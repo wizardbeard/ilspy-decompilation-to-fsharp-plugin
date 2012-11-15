@@ -18,7 +18,7 @@ type FSharpLanguage() =
     inherit Language()
     
     override this.Name
-        with get() = "FSharp"
+        with get() = "F#"
     
     override this.FileExtension
         with get() = ".fs"
