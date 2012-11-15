@@ -22,9 +22,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Debug\ILSpy.FSharp.XML</DocumentationFile>
-    <StartAction>Project</StartAction>
-    <StartProgram>
-    </StartProgram>
+    <StartAction>Program</StartAction>
+    <StartProgram>$(SolutionDir)ILSpy.FSharp\bin\Debug\ILSpy.exe</StartProgram>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -34,6 +33,8 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\ILSpy.FSharp.XML</DocumentationFile>
+    <StartAction>Program</StartAction>
+    <StartProgram>$(SolutionDir)ILSpy.FSharp\bin\Release\ILSpy.exe</StartProgram>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
