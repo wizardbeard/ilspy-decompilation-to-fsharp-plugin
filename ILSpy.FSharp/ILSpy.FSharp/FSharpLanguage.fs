@@ -11,6 +11,7 @@ open ICSharpCode.ILSpy
 open ICSharpCode.NRefactory.CSharp
 open Mono.Cecil
 
+[<Class>]
 [<Export(typeof<Language>)>]
 type FSharpLanguage() =
     
@@ -39,4 +40,4 @@ type FSharpLanguage() =
             let b = new AstBuilder(c)
             b.AddMethod methodDefinition
             b.RunTransformations()
-            output.WriteLine("Decompiled AST has " + b.CompilationUnit.DescendantsAndSelf.Count().ToString() + " nodes")
+            output.WriteLine("Decompiled AST has " + b.SyntaxTree.DescendantsAndSelf.Count().ToString() + " nodes")
