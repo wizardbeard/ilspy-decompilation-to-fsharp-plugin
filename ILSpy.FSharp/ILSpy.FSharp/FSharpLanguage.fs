@@ -22,8 +22,12 @@ type FSharpLanguage() =
     
     override this.FileExtension
         with get() = ".fs"
+
+    override this.ProjectFileExtension
+        with get() = ".fsproj"
     
     override this.DecompileMethod(methodDefinition:MethodDefinition, output: ITextOutput, options: DecompilationOptions) = 
+        output.WriteLine "This is method"
         if methodDefinition.Body <> null then
             output.WriteLine ("Size of method: " + methodDefinition.Body.CodeSize.ToString() + " bytes")
             
@@ -41,3 +45,44 @@ type FSharpLanguage() =
             b.AddMethod methodDefinition
             b.RunTransformations()
             output.WriteLine("Decompiled AST has " + b.SyntaxTree.DescendantsAndSelf.Count().ToString() + " nodes")
+            
+            output.WriteLine("Children " + b.SyntaxTree.Children.Count().ToString())
+            
+    override this.DecompileProperty(property: PropertyDefinition, output: ITextOutput, options: DecompilationOptions) =
+        output.WriteLine "This is property"
+            
+        let c = new DecompilerContext(property.Module)
+        c.Settings <- options.DecompilerSettings
+        c.CurrentType <- property.DeclaringType
+        let b = new AstBuilder(c)
+        b.AddProperty property
+        b.RunTransformations()
+        output.WriteLine("Decompiled AST has " + b.SyntaxTree.DescendantsAndSelf.Count().ToString() + " nodes")
+            
+        output.WriteLine("NodeType: " + b.SyntaxTree.NodeType.ToString())
+
+
+    override this.DecompileField(field: FieldDefinition, output: ITextOutput, options: DecompilationOptions) =
+        output.WriteLine "This is field"
+
+    override this.DecompileEvent(ev: EventDefinition, output: ITextOutput, options: DecompilationOptions) =
+        output.WriteLine "This is event"
+
+    override this.DecompileType(typeDef: TypeDefinition, output: ITextOutput, options: DecompilationOptions) =
+        //output.WriteLine "This is type"
+
+        let c = new DecompilerContext(typeDef.Module)
+        c.Settings <- options.DecompilerSettings
+        c.CurrentType <- typeDef.DeclaringType
+        let b = new AstBuilder(c)
+        b.AddType typeDef
+        b.RunTransformations()
+        //output.WriteLine("Decompiled AST has " + b.SyntaxTree.DescendantsAndSelf.Count().ToString() + " nodes")
+
+        let printer = new CSharpASTPrinter()
+        //printer.PrintWhatIsThere(b.SyntaxTree, output)
+        printer.PrintAST(b.SyntaxTree, output)
+
+
+    override this.DecompileAssembly(assembly: LoadedAssembly, output: ITextOutput, options: DecompilationOptions) =
+        output.WriteLine "This is assembly"

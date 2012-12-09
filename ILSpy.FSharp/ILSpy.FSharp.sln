@@ -1,7 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Web
+# Visual Studio 2012
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ILSpy.FSharp", "ILSpy.FSharp\ILSpy.FSharp.fsproj", "{D47CEEC0-CE96-42D0-9208-35B436E1A588}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ILSpy.Fsharp.Tests", "ILSpy.Fsharp.Tests\ILSpy.Fsharp.Tests.fsproj", "{F8E87AD1-7487-4D3D-9587-20F97142FAA1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{457927E0-8F6D-41AF-AD07-7D620CDBE75E}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SimpleClass", "SimpleClass\SimpleClass.fsproj", "{FF6F28DC-065C-48DD-816B-992AB76F37EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,8 +19,20 @@ Global
 		{D47CEEC0-CE96-42D0-9208-35B436E1A588}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D47CEEC0-CE96-42D0-9208-35B436E1A588}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D47CEEC0-CE96-42D0-9208-35B436E1A588}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8E87AD1-7487-4D3D-9587-20F97142FAA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8E87AD1-7487-4D3D-9587-20F97142FAA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8E87AD1-7487-4D3D-9587-20F97142FAA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8E87AD1-7487-4D3D-9587-20F97142FAA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF6F28DC-065C-48DD-816B-992AB76F37EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF6F28DC-065C-48DD-816B-992AB76F37EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF6F28DC-065C-48DD-816B-992AB76F37EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF6F28DC-065C-48DD-816B-992AB76F37EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F8E87AD1-7487-4D3D-9587-20F97142FAA1} = {457927E0-8F6D-41AF-AD07-7D620CDBE75E}
+		{FF6F28DC-065C-48DD-816B-992AB76F37EE} = {457927E0-8F6D-41AF-AD07-7D620CDBE75E}
 	EndGlobalSection
 EndGlobal
