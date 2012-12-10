@@ -46,7 +46,6 @@
     <Compile Include="FSharpLanguage.fs" />
     <Compile Include="MainMenuCommand.fs" />
     <Compile Include="ContextMenuCommand.fs" />
-    <Compile Include="AST.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="ICSharpCode.AvalonEdit">
