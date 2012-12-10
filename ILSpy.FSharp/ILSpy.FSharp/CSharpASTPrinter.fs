@@ -5,15 +5,14 @@ open ICSharpCode.NRefactory.CSharp
 
 type CSharpASTPrinter() =
     
-    let rec pwit (ast: AstNode) (output: ITextOutput) count =
-        do 
-            match count with
-            | i when i < 0 -> ()
-            | 0 -> output.WriteLine("this:" + ast.ToString())
-            | i -> 
-                for j = 1 to i do output.Write("child")
-                output.WriteLine(": " + ast.ToString() + "    of   " + ast.GetType().ToString())
-            ast.Children |> Seq.iter (fun child -> pwit child output (count + 1))
+    let rec pwit (ast: AstNode) (output: ITextOutput) count =        
+        match count with
+        | i when i < 0 -> ()
+        | 0 -> output.WriteLine("this:" + ast.ToString())
+        | i -> 
+            for j = 1 to i do output.Write("child")
+            output.WriteLine(": " + ast.ToString() + "    of   " + ast.GetType().ToString())
+        ast.Children |> Seq.iter (fun child -> pwit child output (count + 1))
 
     let tab = "    "
 
