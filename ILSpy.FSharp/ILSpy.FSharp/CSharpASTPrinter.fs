@@ -47,7 +47,10 @@ type CSharpASTPrinter() =
         | :? BlockStatement -> ast.Children |> Seq.iter (fun child -> past child output level)
         | :? ReturnStatement -> past ast.FirstChild output level
         | :? PrimitiveExpression -> output.Write(ast.ToString())
-        | _ -> ()
+        | x -> ()
+            // It should be logged!!!
+            (*output.WriteLine ""
+            "//FS DECOMPILER. Node is not supported: " + string x |> output.WriteLine*)
 
 
     member this.PrintWhatIsThere(ast: AstNode, output: ITextOutput) =
