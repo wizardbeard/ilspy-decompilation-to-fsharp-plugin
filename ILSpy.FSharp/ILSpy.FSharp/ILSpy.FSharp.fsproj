@@ -42,6 +42,7 @@
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
     <Resource Include="Clear.png" />
+    <Compile Include="PrinterWrapper.fs" />
     <Compile Include="CSharpASTPrinter.fs" />
     <Compile Include="FSharpLanguage.fs" />
     <Compile Include="MainMenuCommand.fs" />
