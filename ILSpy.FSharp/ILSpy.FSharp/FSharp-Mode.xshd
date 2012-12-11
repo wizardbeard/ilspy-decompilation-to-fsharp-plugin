@@ -240,6 +240,7 @@
 			<Word>virtual</Word>
 			<Word>volatile</Word>
 			<Word>async</Word>
+      <Word>member</Word>
 		</Keywords>
 		
 		<Keywords color="Visibility">
@@ -251,7 +252,7 @@
 		
 		<Keywords color="NamespaceKeywords">
 			<Word>namespace</Word>
-			<Word>using</Word>
+			<Word>open</Word>
 		</Keywords>
 		
 		<Keywords color="GetSetAddRemove">
