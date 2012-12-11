@@ -26,23 +26,27 @@ type CSharpASTPrinter() =
         let bodyLayout = nmsp.Members |> List.ofSeq |> List.map past |> aboveListL 
         wordL "namespace" ++ nameLayout
         @@-- bodyLayout
+        |> fold
 
     and typeDeclLayout (tDecl:TypeDeclaration) =        
         let nameLayout = defL tDecl.Name tDecl true
         let bodyLayout = tDecl.Members |> List.ofSeq |> List.map past |> aboveListL
         wordL "type" ++ nameLayout ++ wordL "() ="
         @@-- bodyLayout
+        |> fold
 
     and propDeclLayout (pDecl:PropertyDeclaration) =
         let nameLayout = wordL ("this." + pDecl.Name)
         let bodyLayout = past pDecl.Getter
         wordL "member" ++ nameLayout
         @@-- bodyLayout
+        |> fold
 
     and accessorLayout (acs:Accessor) =        
         let bodyLayout = past acs.Body
         wordL "with get() ="
         @@-- bodyLayout
+        |> fold
 
     and uDeclLayout (uDecl:UsingDeclaration) =        
         let nameLayout = past uDecl.Import
