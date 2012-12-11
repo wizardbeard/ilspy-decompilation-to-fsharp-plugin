@@ -10,11 +10,23 @@ let inline (@@--) l r =
         r output
         output.Unindent() 
 
+let inline (---) l r = 
+    fun (output:ITextOutput) ->
+        l output
+        output.WriteLine()        
+        r output
+
 let inline (++) l r = 
     fun (output:ITextOutput) ->
         l output
         output.Write(" ") 
         r output
+
+let inline (-+) l r = 
+    fun (output:ITextOutput) ->
+        l output        
+        r output
+
 
 let wordL (txt:string) = fun (output:ITextOutput) -> output.Write txt 
 

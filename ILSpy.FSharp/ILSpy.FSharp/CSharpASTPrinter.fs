@@ -10,8 +10,7 @@ type CSharpASTPrinter() =
     let moduleName = "FS DECOMPILER"
 
     let error msg = 
-        "(*" + moduleName + ". " + msg + "*)"
-        |> wordL
+        wordL "(*" ++ wordL moduleName -+ wordL ". " ++ msg ++ wordL "*)"        
 
     let rec pwit (ast: AstNode) (output: ITextOutput) count =
         match count with
@@ -59,10 +58,14 @@ type CSharpASTPrinter() =
         | :? UsingDeclaration as uDecl -> uDeclLayout uDecl
         | :? PropertyDeclaration as pDecl -> propDeclLayout pDecl
         | :? Accessor as acs -> accessorLayout acs
-        | :? BlockStatement -> astChildrenCashed |> List.map past |> aboveListL
-        | :? ReturnStatement -> past ast.FirstChild
+        | :? BlockStatement -> astChildrenCashed |> List.map past |> aboveListL        
+        | :? ReturnStatement -> past ast.FirstChild        
         | :? PrimitiveExpression -> ast.ToString() |> wordL
-        | x -> "Node is not supported: " + string x |> error
+        | x -> 
+            wordL "Node is not supported:"
+            @@-- (wordL "Type :"  ++  (x.NodeType |> string |> wordL)
+                  --- wordL "Value:" ++ (x |> string |> wordL))
+            |> error
 
     member this.PrintWhatIsThere(ast: AstNode, output: ITextOutput) =
         pwit ast output 0
@@ -70,4 +73,3 @@ type CSharpASTPrinter() =
     member this.PrintAST(ast: AstNode, output: ITextOutput) =        
         past ast
         |> print output
-

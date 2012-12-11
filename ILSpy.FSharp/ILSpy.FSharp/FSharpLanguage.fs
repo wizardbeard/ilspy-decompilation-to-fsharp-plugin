@@ -9,13 +9,24 @@ open ICSharpCode.Decompiler
 open ICSharpCode.Decompiler.Ast
 open ICSharpCode.ILSpy
 open ICSharpCode.NRefactory.CSharp
+open ICSharpCode.AvalonEdit.Highlighting;
 open Mono.Cecil
+
+
 
 [<Class>]
 [<Export(typeof<Language>)>]
-type FSharpLanguage() =
-    
+type FSharpLanguage() as this =
     inherit Language()
+
+    let hName = "FSharp"
+
+    let highlighting = 
+        ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load
+            (new Xml.XmlTextReader("FSharp-Mode.xshd")
+            ,HighlightingManager.Instance)
+
+    do HighlightingManager.Instance.RegisterHighlighting(hName,[|this.FileExtension|],highlighting)
     
     override this.Name
         with get() = "F#"
@@ -25,6 +36,9 @@ type FSharpLanguage() =
 
     override this.ProjectFileExtension
         with get() = ".fsproj"
+
+    override this.SyntaxHighlighting
+        with get() = HighlightingManager.Instance.GetDefinition hName
     
     override this.DecompileMethod(methodDefinition:MethodDefinition, output: ITextOutput, options: DecompilationOptions) = 
         output.WriteLine "This is method"
@@ -32,13 +46,13 @@ type FSharpLanguage() =
             output.WriteLine ("Size of method: " + methodDefinition.Body.CodeSize.ToString() + " bytes")
             
             let smartOutput = output :?> ISmartTextOutput
-
+                        
             if smartOutput <> null
             then
                 smartOutput.AddButton(null, "Click me!", new RoutedEventHandler(fun sender e -> (sender :?> Button).Content <- "I was clicked!"))
                 smartOutput.WriteLine()
             
-            let c = new DecompilerContext(methodDefinition.Module)
+            let c = new DecompilerContext(methodDefinition.Module)            
             c.Settings <- options.DecompilerSettings
             c.CurrentType <- methodDefinition.DeclaringType
             let b = new AstBuilder(c)
