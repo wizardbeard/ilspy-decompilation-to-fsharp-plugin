@@ -41,16 +41,19 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
-    <Resource Include="Clear.png" />
+    <Resource Include="clear.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Content Include="FSharp-Mode.xshd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Compile Include="PrinterWrapper.fs" />
     <Compile Include="CSharpASTPrinter.fs" />
     <Compile Include="FSharpLanguage.fs" />
     <Compile Include="MainMenuCommand.fs" />
     <Compile Include="ContextMenuCommand.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FSharp.PowerPack">
-      <HintPath>..\..\3rdParty\FsPowerPack\FSharp.PowerPack.dll</HintPath>
-    </Reference>
     <Reference Include="ICSharpCode.AvalonEdit">
       <HintPath>..\..\3rdParty\ICSharpCode.AvalonEdit.dll</HintPath>
     </Reference>
