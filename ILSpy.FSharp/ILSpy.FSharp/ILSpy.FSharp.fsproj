@@ -48,7 +48,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Compile Include="PrinterWrapper.fs" />
-    <Compile Include="CSharpASTPrinter.fs" />
+    <Compile Include="FSharpASTPrinter.fs" />
     <Compile Include="FSharpLanguage.fs" />
     <Compile Include="MainMenuCommand.fs" />
     <Compile Include="ContextMenuCommand.fs" />
