@@ -12,8 +12,6 @@ open ICSharpCode.NRefactory.CSharp
 open ICSharpCode.AvalonEdit.Highlighting;
 open Mono.Cecil
 
-
-
 [<Class>]
 [<Export(typeof<Language>)>]
 type FSharpLanguage() as this =
@@ -90,7 +88,7 @@ type FSharpLanguage() as this =
         c.CurrentType <- typeDef.DeclaringType
         let b = new AstBuilder(c)
         b.AddType typeDef
-        b.RunTransformations()
+        //b.RunTransformations()
         //output.WriteLine("Decompiled AST has " + b.SyntaxTree.DescendantsAndSelf.Count().ToString() + " nodes")
 
         let printer = new CSharpASTPrinter()
