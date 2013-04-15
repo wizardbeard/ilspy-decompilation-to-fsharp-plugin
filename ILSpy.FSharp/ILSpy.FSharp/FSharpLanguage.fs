@@ -12,6 +12,8 @@ open ICSharpCode.NRefactory.CSharp
 open ICSharpCode.AvalonEdit.Highlighting;
 open Mono.Cecil
 
+open ILSpy.FSharp.Transforms
+
 [<Class>]
 [<Export(typeof<Language>)>]
 type FSharpLanguage() as this =
@@ -53,12 +55,18 @@ type FSharpLanguage() as this =
             let c = new DecompilerContext(methodDefinition.Module)            
             c.Settings <- options.DecompilerSettings
             c.CurrentType <- methodDefinition.DeclaringType
-            let b = new AstBuilder(c)
+            let b = new FSAstBuilder(c)
             b.AddMethod methodDefinition
             b.RunTransformations()
             output.WriteLine("Decompiled AST has " + b.SyntaxTree.DescendantsAndSelf.Count().ToString() + " nodes")
             
             output.WriteLine("Children " + b.SyntaxTree.Children.Count().ToString())
+            let printer = new FSharpASTPrinter()
+            printer.PrintWhatIsThere b.SyntaxTree output
+            printer.PrintAST b.SyntaxTree output
+
+
+
             
     override this.DecompileProperty(property: PropertyDefinition, output: ITextOutput, options: DecompilationOptions) =
         output.WriteLine "This is property"
@@ -66,13 +74,16 @@ type FSharpLanguage() as this =
         let c = new DecompilerContext(property.Module)
         c.Settings <- options.DecompilerSettings
         c.CurrentType <- property.DeclaringType
-        let b = new AstBuilder(c)
+        let b = new FSAstBuilder(c)
         b.AddProperty property
         b.RunTransformations()
         output.WriteLine("Decompiled AST has " + b.SyntaxTree.DescendantsAndSelf.Count().ToString() + " nodes")
             
         output.WriteLine("NodeType: " + b.SyntaxTree.NodeType.ToString())
-
+        
+        let printer = new FSharpASTPrinter()
+        //printer.PrintWhatIsThere b.SyntaxTree output
+        printer.PrintAST b.SyntaxTree output
 
     override this.DecompileField(field: FieldDefinition, output: ITextOutput, options: DecompilationOptions) =
         output.WriteLine "This is field"
@@ -86,15 +97,19 @@ type FSharpLanguage() as this =
         let c = new DecompilerContext(typeDef.Module)
         c.Settings <- options.DecompilerSettings
         c.CurrentType <- typeDef.DeclaringType
-        let b = new AstBuilder(c)
+        let b = new FSAstBuilder(c)
         b.AddType typeDef
-        //b.RunTransformations()
+        b.RunTransformations()
         //output.WriteLine("Decompiled AST has " + b.SyntaxTree.DescendantsAndSelf.Count().ToString() + " nodes")
 
-        let printer = new CSharpASTPrinter()
-        //printer.PrintWhatIsThere(b.SyntaxTree, output)
-        printer.PrintAST(b.SyntaxTree, output)
+        let printer = new FSharpASTPrinter()
+        printer.PrintWhatIsThere b.SyntaxTree output
+        printer.PrintAST b.SyntaxTree output
 
 
     override this.DecompileAssembly(assembly: LoadedAssembly, output: ITextOutput, options: DecompilationOptions) =
         output.WriteLine "This is assembly"
+        let Types = assembly.AssemblyDefinition.MainModule.Types
+        for t in Types do
+            output.Write("type:  ")
+            t |> string |> output.WriteLine

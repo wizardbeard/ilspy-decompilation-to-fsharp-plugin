@@ -1,4 +1,4 @@
-﻿module ILSpy.FSahrp.PrinterWrapper
+﻿module ILSpy.FSharp.PrinterWrapper
 
 open ICSharpCode.Decompiler
 
@@ -32,7 +32,6 @@ let fold b =
         output.MarkFoldStart()
         b output
         output.MarkFoldEnd() 
-
 
 let wordL (txt:string) = fun (output:ITextOutput) -> output.Write txt 
 

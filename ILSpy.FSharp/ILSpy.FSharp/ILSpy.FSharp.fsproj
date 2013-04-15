@@ -47,7 +47,10 @@
     <Content Include="FSharp-Mode.xshd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Compile Include="FSharpDecompiler.fs" />
     <Compile Include="PrinterWrapper.fs" />
+    <Compile Include="FSharpAST.fs" />
+    <Compile Include="Transforms.fs" />
     <Compile Include="FSharpASTPrinter.fs" />
     <Compile Include="FSharpLanguage.fs" />
     <Compile Include="MainMenuCommand.fs" />
