@@ -13,19 +13,13 @@ type public IntroduceFunctions() =
     inherit DepthFirstAstVisitor<obj, obj>()
     interface IAstTransform with
         member this.Run(node : AstNode) =
-            let visitor = (this :> DepthFirstAstVisitor<obj, obj>) :> IAstVisitor<obj, obj>
-            let nul = null :> obj
-            ignore (node.AcceptVisitor<obj, obj> (visitor, nul))      
+            let visitor = this :> IAstVisitor<_,_>
+            ignore (node.AcceptVisitor<_, _> (this, null))      
         
     override this.VisitTypeDeclaration (typeDeclaration, data) =
-        let mutable itsFunc = false
-        let children = typeDeclaration.Children |> List.ofSeq
-        for child in children do
-            if child.NodeType = NodeType.TypeReference then
-                if (string child).StartsWith "FSharpFunc" then 
-                    itsFunc <- true //break need hard
-                else ()
-            else ()
+        let itsFunc =
+            typeDeclaration.Children 
+            |> Seq.exists (fun child -> child.NodeType = NodeType.TypeReference && (string child).StartsWith "FSharpFunc")
         if itsFunc then typeDeclaration.ReplaceWith(AST.AnonymousFunctionDeclaration.GetFromTypeDecl(typeDeclaration) :> AstNode)
         base.VisitTypeDeclaration (typeDeclaration, data)
 
@@ -44,14 +38,10 @@ module public FSTransformationPipeline =
 
     let RunTransformationsUntil (node : AstNode) (abortCondition : Predicate<IAstTransform>) (context : DecompilerContext) = 
         
-        if node = null then ()
-        else
-            for transform in CreatePipeline context do
-                context.CancellationToken.ThrowIfCancellationRequested()
-                if abortCondition <> null && abortCondition.Invoke transform then
-                    ()
-                else
-                    transform.Run node
+        if node <> null then 
+            CreatePipeline context |> Seq.iter (fun transform -> 
+            context.CancellationToken.ThrowIfCancellationRequested()
+            if not (abortCondition <> null && abortCondition.Invoke transform) then transform.Run node)
 
 type public FSAstBuilder(context: DecompilerContext) =
     inherit AstBuilder(context)
