@@ -66,7 +66,7 @@ type FSharpASTPrinter() =
                 parameters <- parameters + " " + prmtr.GetText()
         wordL "let" ++ nameLayout ++ (args |> wordL) ++ wordL " =" ++ wordL parameters
         @@-- wordL bodyLayout
-        |>fold
+        |> fold
 
     and propDeclLayout (pDecl:PropertyDeclaration) =
         let nameLayout = wordL ("this." + pDecl.Name)
