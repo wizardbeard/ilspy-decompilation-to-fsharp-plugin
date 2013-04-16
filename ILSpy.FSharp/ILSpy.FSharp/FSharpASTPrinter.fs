@@ -54,13 +54,13 @@ type FSharpASTPrinter() =
     and anonymFunDeclLayout (funDecl : AnonymousFunctionDeclaration) =
         let nameLayout = defL funDecl.Name funDecl true
         let mutable args = ""
-        if funDecl.args.IsEmpty then args <- "()" else
+        if funDecl.args.Count = 0 then args <- "()" else
             for arg in funDecl.args do
                 args <- (string arg.Name + " ")
         funDecl.body.AcceptVisitor (new InsertParenthesesVisitor())
         let bodyLayout = funDecl.body |> string
         let mutable parameters = ""
-        if funDecl.externalParameters.IsEmpty then () else
+        if funDecl.externalParameters.Count = 0 then () else
             parameters <- "///External parameters:" + parameters
             for prmtr in funDecl.externalParameters do
                 parameters <- parameters + " " + prmtr.GetText()
