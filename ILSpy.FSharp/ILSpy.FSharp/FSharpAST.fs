@@ -13,11 +13,11 @@ open ICSharpCode.NRefactory
 let  AddChild (parent: AstNode) (child : AstNode) =
     let clone = child.Clone()
     match clone with
-    | :? AttributeSection as section -> parent.AddChild<AttributeSection>(section, child.Role :?> ICSharpCode.NRefactory.Role<AttributeSection>)
-    | :? AstType as astType -> parent.AddChild<AstType>(astType, child.Role :?> ICSharpCode.NRefactory.Role<AstType>)
-    | :? CSharpModifierToken as token -> parent.AddChild<CSharpModifierToken>(token, child.Role :?> ICSharpCode.NRefactory.Role<CSharpModifierToken>)
-    | :? Identifier as id -> parent.AddChild<Identifier>(id, child.Role :?> ICSharpCode.NRefactory.Role<Identifier>)
-    | _ -> (child :?> AstType) |> ignore
+    | :? AttributeSection as x    -> parent.AddChild<AttributeSection>( x, child.Role :?> _ )
+    | :? AstType as x             -> parent.AddChild<AstType>( x, child.Role :?> _ )
+    | :? CSharpModifierToken as x -> parent.AddChild<CSharpModifierToken>( x, child.Role :?> _ )
+    | :? Identifier as x          -> parent.AddChild<Identifier>( x, child.Role :?> _ )
+    | _ -> ()
 
 type private deleteThisRefVisitor() =
     inherit DepthFirstAstVisitor()
@@ -26,7 +26,7 @@ type private deleteThisRefVisitor() =
         memRef.FirstChild.Remove()
         memRef.ReplaceWith (new IdentifierExpression((memRef.FirstChild :?> Identifier).Name))
     
-type public AnonymousFunctionDeclaration (args : list<ParameterDeclaration>, body : Expression, externalParameters: list<FieldDeclaration>) =
+type public AnonymousFunctionDeclaration (args, body : Expression, externalParameters) =
         
     inherit TypeDeclaration()
         
@@ -50,31 +50,30 @@ type public AnonymousFunctionDeclaration (args : list<ParameterDeclaration>, bod
         true //dummy
 
     static member GetFromTypeDecl(typeDecl: TypeDeclaration) =
-        let mutable args = []
-        let mutable externalParameters = []
-        let mutable body = null
-        let mutable children = []
+        let args = new ResizeArray<_>()
+        let externalParameters = new ResizeArray<_>()
+        let body = ref null
+        let children = new ResizeArray<_>()
             
         for child in (typeDecl.Children |> List.ofSeq) do
             match child.NodeType with
             | NodeType.Member ->
                 match child with
-                | :? FieldDeclaration as FD ->
-                    externalParameters <- FD :: externalParameters
+                | :? FieldDeclaration as FD -> externalParameters.Add FD
                 | :? ConstructorDeclaration -> ()
                 | :? MethodDeclaration as MD -> ///invoke
-                    for ch in (MD.Children |> List.ofSeq) do
-                        match ch with
-                        | :? ParameterDeclaration as PD -> 
-                            args <- PD :: args
-                        | :? Statement as statement ->  // body
-                            body <- (statement.FirstChild.FirstChild :?> Expression)
-                            body.AcceptVisitor(new deleteThisRefVisitor())
-                        | _ -> ()
-                | _ -> children <- child :: children
-            | _ -> children <- child :: children 
+                    MD.Children 
+                    |> Seq.iter
+                        (function
+                            | :? ParameterDeclaration as PD -> args.Add PD
+                            | :? Statement as statement ->  // body
+                                body := statement.FirstChild.FirstChild :?> Expression
+                                (!body).AcceptVisitor(new deleteThisRefVisitor())
+                            | _ -> ())
+                | _ -> children.Add child
+            | _ -> children.Add child
 
-        let func = new AnonymousFunctionDeclaration(args, body, externalParameters)
+        let func = new AnonymousFunctionDeclaration(args, !body, externalParameters)
         for child in children do
             AddChild func child
         func
