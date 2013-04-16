@@ -14,12 +14,13 @@ type public IntroduceFunctions() =
     interface IAstTransform with
         member this.Run(node : AstNode) =
             let visitor = this :> IAstVisitor<_,_>
-            ignore (node.AcceptVisitor<_, _> (this, null))      
+            ignore (node.AcceptVisitor<_,_> (this, null))      
         
     override this.VisitTypeDeclaration (typeDeclaration, data) =               
         let itsFunc =
             typeDeclaration.Children 
             |> Seq.exists (fun child -> child.NodeType = NodeType.TypeReference && (string child).StartsWith "FSharpFunc")
+        if itsFunc then typeDeclaration.ReplaceWith(AST.AnonymousFunctionDeclaration.GetFromTypeDecl(typeDeclaration) :> AstNode)
         base.VisitTypeDeclaration (typeDeclaration, data)
 
 module public FSTransformationPipeline =
@@ -35,8 +36,7 @@ module public FSTransformationPipeline =
             new ConvertConstructorCallIntoInitializer();
             new DecimalConstantTransform()|]
 
-    let RunTransformationsUntil (node : AstNode) (abortCondition : Predicate<IAstTransform>) (context : DecompilerContext) =
-        if node <> null 
+    let RunTransformationsUntil (node : AstNode) (abortCondition : Predicate<IAstTransform>) (context : DecompilerContext) =        
         if node <> null then 
             CreatePipeline context |> Seq.iter (fun transform -> 
             context.CancellationToken.ThrowIfCancellationRequested()
