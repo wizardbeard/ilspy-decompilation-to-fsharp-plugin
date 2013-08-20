@@ -35,6 +35,19 @@ type FSharpASTPrinter() =
                 | NodeType.Member ->  " ''" + (let x = (ast :?> EntityDeclaration) in string x.Name) + "''"
                 | _ -> "" 
             output.WriteLine("-- " + string ast.NodeType + name + ",   " + string ast)
+            
+            
+            let x = ast.Annotation<Mono.Cecil.MemberReference>()
+            if (string ast = "Sample3") then
+                ()
+            if (string ast = "Sample3.x@3") then
+                ()
+            if (string ast = "FSharpList<int>.Empty") then
+                ()
+            if (string ast = "int[]") then
+                ()
+        
+        
         ast.Children |> Seq.iter (fun child -> pwit child output (count + 1))
 
     let rec namespaceLayout (nmsp : NamespaceDeclaration) =        
@@ -51,21 +64,24 @@ type FSharpASTPrinter() =
         @@-- bodyLayout
         |> fold
 
-    and anonymFunDeclLayout (funDecl : AnonymousFunctionDeclaration) =
+    and funDeclLayout (funDecl : FunctionDeclaration) =
         let nameLayout = defL funDecl.Name funDecl true
-        let mutable args = ""
-        if funDecl.args.Count = 0 then args <- "()" else
-            for arg in funDecl.args do
-                args <- (string arg.Name + " ")
-        funDecl.body.AcceptVisitor (new InsertParenthesesVisitor())
-        let bodyLayout = funDecl.body |> string
+        let mutable args = " "
         let mutable parameters = ""
-        if funDecl.externalParameters.Count = 0 then () else
-            parameters <- "///External parameters:" + parameters
+        if funDecl.externalParameters.Count = 0 then parameters <- "()" else
             for prmtr in funDecl.externalParameters do
-                parameters <- parameters + " " + prmtr.GetText()
-        wordL "let" ++ nameLayout ++ (args |> wordL) ++ wordL " =" ++ wordL parameters
-        @@-- wordL bodyLayout
+                parameters <- (parameters + " " + (prmtr.Variables |> Seq.nth 0 |> fun x -> x.Name) )
+
+        if funDecl.args.Count = 0 then args <- "_" else
+            for arg in funDecl.args do
+                args <- (arg.Name + " ")
+
+        funDecl.body.AcceptVisitor (new InsertParenthesesVisitor())
+        //let bodyLayout = funDecl.body |> string
+        
+        
+        wordL "let" ++ nameLayout ++ (parameters |> wordL) ++ wordL " = fun" ++ wordL (args + " -> ") ++ (funDecl.body |> string |> wordL)
+        //@@-- wordL bodyLayout
         |> fold
 
     and propDeclLayout (pDecl:PropertyDeclaration) =
@@ -99,7 +115,7 @@ type FSharpASTPrinter() =
         | :? ReturnStatement -> past ast.FirstChild        
         | :? TypeDeclaration as typeDecl -> 
             match typeDecl with
-            | :? AnonymousFunctionDeclaration as funDecl -> anonymFunDeclLayout funDecl
+            | :? FunctionDeclaration as funDecl -> funDeclLayout funDecl
             | _ ->  typeDeclLayout typeDecl
         | :? UsingDeclaration as uDecl -> uDeclLayout uDecl
         | x -> 

@@ -26,7 +26,7 @@ type private deleteThisRefVisitor() =
         memRef.FirstChild.Remove()
         memRef.ReplaceWith (new IdentifierExpression((memRef.FirstChild :?> Identifier).Name))
     
-type public AnonymousFunctionDeclaration (args, body : Expression, externalParameters) =
+type public FunctionDeclaration (args, body : Expression, externalParameters) =
         
     inherit TypeDeclaration()
         
@@ -73,11 +73,37 @@ type public AnonymousFunctionDeclaration (args, body : Expression, externalParam
                 | _ -> children.Add child
             | _ -> children.Add child
 
-        let func = new AnonymousFunctionDeclaration(args, !body, externalParameters)
-        for child in children do
-            AddChild func child
+        let func = new FunctionDeclaration(args, !body, externalParameters)
+        children |> Seq.iter (fun child -> AddChild func child)
         func
 
+type public FSListExpression(fsList : AstNode list) =
+    inherit Expression()
+
+    member this.body = fsList
+    static member Empty = 
+        FSListExpression([])
+
+    override this.AcceptVisitor (visitor : IAstVisitor)=
+        this.body |> Seq.iter (fun x -> x.AcceptVisitor(visitor))
+        //base.AcceptVisitor visitor ///dummy
+        //()
+
+    override this.AcceptVisitor<'T> (visitor : IAstVisitor<'T>) =
+        Unchecked.defaultof<'T> ///dummy
+
+    override this.AcceptVisitor<'T, 'S> (visitor : IAstVisitor<'T, 'S>, data : 'T) =
+        Unchecked.defaultof<'S>
+
+    override this.DoMatch (other: AstNode, match' : ICSharpCode.NRefactory.PatternMatching.Match) =
+        true //dummy
+
+    override this.ToString() = string this.body
+    
+    default this.NodeType
+        with get() = NodeType.Expression
+
+        
 (*module public Visitors
     
 type public FSAstVisitor =
