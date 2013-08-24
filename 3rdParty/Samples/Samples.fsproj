@@ -51,6 +51,7 @@
     <Compile Include="Sample3.fs" />
     <Compile Include="Sample4.fs" />
     <Compile Include="Sample5.fs" />
+    <Compile Include="Sample6.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <PropertyGroup>

@@ -9,6 +9,7 @@ open ICSharpCode.Decompiler.Ast.Transforms
 open ICSharpCode.NRefactory.CSharp
 open ICSharpCode.NRefactory
 open AST
+open Mono.Cecil
     
 type public IntroduceFunctions() =
     inherit DepthFirstAstVisitor<obj, obj>()
@@ -26,13 +27,13 @@ type public IntroduceFunctions() =
 
 
 type public IntroduceFSListExpressions() =
-    inherit DepthFirstAstVisitor<obj, obj>()
+    inherit DepthFirstAstVisitor()
     interface IAstTransform with
         member this.Run(node : AstNode) =
-            let visitor = this :> IAstVisitor<_,_>
-            ignore (node.AcceptVisitor<_,_> (this, null))
+            let visitor = this :> IAstVisitor
+            ignore (node.AcceptVisitor(visitor))
     
-    override this.VisitInvocationExpression(invocationExpression, data) =
+    override this.VisitInvocationExpression(invocationExpression) =
         if (string invocationExpression.FirstChild).StartsWith "FSharpList" && (string invocationExpression.FirstChild).EndsWith ".Cons" then
             let rec x = fun (expr : AstNode) ->
                 match expr with
@@ -43,15 +44,49 @@ type public IntroduceFSListExpressions() =
                 | _ -> [] //dummy
             let y = new FSListExpression(x invocationExpression)
             invocationExpression.ReplaceWith(y)
-            base.VisitInvocationExpression(y, data) //dummy
         else
-            base.VisitInvocationExpression(invocationExpression, data)
+            base.VisitInvocationExpression(invocationExpression)
 
-    override this.VisitMemberReferenceExpression(memberReferenceExpression, data) =
+    override this.VisitMemberReferenceExpression(memberReferenceExpression) =
         if (string memberReferenceExpression).StartsWith "FSharpList" && (string memberReferenceExpression).EndsWith ".Empty" then 
             memberReferenceExpression.ReplaceWith(AST.FSListExpression.Empty)
-        base.VisitMemberReferenceExpression(memberReferenceExpression, data)
-        
+        else
+            base.VisitMemberReferenceExpression(memberReferenceExpression)
+ 
+ type public SubstituteFunctions() =
+    inherit DepthFirstAstVisitor()
+    interface IAstTransform with
+        member this.Run(node : AstNode) =
+            let visitor = this :> IAstVisitor
+            ignore (node.AcceptVisitor(visitor))
+    
+    override this.VisitMemberType(memberType) =
+        let annotation = memberType.Annotation<Mono.Cecil.TypeDefinition>()
+        if(annotation <> null && annotation.BaseType.FullName.StartsWith "Microsoft.FSharp.Core.FSharpFunc") then
+            
+            let createAstBuilder (x : TypeDefinition) =
+                let currentModule = x.Module
+                let context = new DecompilerContext(currentModule)
+                context.CurrentType <- x
+                new AstBuilder(context)
+
+            let codeDomBuilder = createAstBuilder annotation
+            codeDomBuilder.AddType(annotation)
+            let typeDecl = codeDomBuilder.SyntaxTree.FirstChild :?> TypeDeclaration
+            let invoke = (typeDecl.Members |> Seq.find (fun x -> x :? MethodDeclaration && (x :?> MethodDeclaration).Name = "Invoke")):?> MethodDeclaration
+            let parameters = invoke.Parameters
+            let body = invoke.Body.FirstChild.FirstChild.Clone() :?> Expression
+            body.AcceptVisitor(new deleteThisRefVisitor())
+            let res = new AnonymousFunction()
+            parameters |> Seq.iter (fun x -> res.AddChild<ParameterDeclaration>(x.Clone() :?> ParameterDeclaration, Roles.Parameter))
+            res.AddChild<Expression>(body, Roles.Expression)
+            
+            if memberType.Parent :? ObjectCreateExpression then
+                memberType.Parent.ReplaceWith(res)
+            else
+                ()
+        else
+            base.VisitMemberType(memberType)
 
 module public FSTransformationPipeline =
     
@@ -65,6 +100,7 @@ module public FSTransformationPipeline =
             new DeclareVariables(context);
             new ConvertConstructorCallIntoInitializer();
             new DecimalConstantTransform();
+            new SubstituteFunctions();
             new IntroduceFSListExpressions()|]
 
     let RunTransformationsUntil (node : AstNode) (abortCondition : Predicate<IAstTransform>) (context : DecompilerContext) =        

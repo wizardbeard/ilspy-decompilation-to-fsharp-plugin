@@ -14,6 +14,8 @@ type FSharpASTPrinter() =
         wordL "(*" ++ wordL moduleName -+ wordL ". " ++ msg ++ wordL "*)"        
 
     let rec pwit (ast: AstNode) (output: ITextOutput) count =        
+        if(ast :? BlockStatement) then 
+            ()
         match count with
         | k when k < 0 -> ()
         | 0 -> output.WriteLine(string ast.NodeType + ",   " + string ast)
@@ -35,18 +37,7 @@ type FSharpASTPrinter() =
                 | NodeType.Member ->  " ''" + (let x = (ast :?> EntityDeclaration) in string x.Name) + "''"
                 | _ -> "" 
             output.WriteLine("-- " + string ast.NodeType + name + ",   " + string ast)
-            
-            
-            let x = ast.Annotation<Mono.Cecil.MemberReference>()
-            if (string ast = "Sample3") then
-                ()
-            if (string ast = "Sample3.x@3") then
-                ()
-            if (string ast = "FSharpList<int>.Empty") then
-                ()
-            if (string ast = "int[]") then
-                ()
-        
+                   
         
         ast.Children |> Seq.iter (fun child -> pwit child output (count + 1))
 
@@ -91,6 +82,17 @@ type FSharpASTPrinter() =
         @@-- bodyLayout
         |> fold
 
+    and methodDeclLayout (mDecl:MethodDeclaration) =
+        let nameLayout = wordL ("this." + mDecl.Name)
+        let bodyLayout = past mDecl.Body
+        wordL "member" ++ nameLayout ++ parametersLayout mDecl.Parameters ++ wordL "="
+        @@-- bodyLayout
+        |> fold
+
+    and parametersLayout (parameters : AstNodeCollection<ParameterDeclaration>) =
+        parameters |> Seq.map (fun x -> wordL x.Name) |> (Seq.fold (++)) (wordL "")
+        |> fold           
+
     and accessorLayout (acs:Accessor) =        
         let bodyLayout = past acs.Body
         wordL "with get() ="
@@ -101,14 +103,25 @@ type FSharpASTPrinter() =
         let nameLayout = past uDecl.Import
         wordL "open" ++ nameLayout
 
+    and invocExprLayout (expr : InvocationExpression) =
+        let first = ref true
+        let args = expr.Arguments |> Seq.map (past) |> (Seq.fold (fun x y -> if !first then first := false; (-+) x y else (+-) x y)) (wordL "")
+        wordL (string expr.Target) -+ wordL "(" -+ args -+ wordL ")"
+
     and past (ast: AstNode) =
         let astChildrenCashed = ast.Children |> List.ofSeq
         match ast with
         | :? SyntaxTree -> astChildrenCashed |> List.map past |> aboveListL
         
         | :? Accessor as acs -> accessorLayout acs
-        | :? BlockStatement -> astChildrenCashed |> List.map past |> aboveListL        
+        | :? AnonymousFunction as anFun -> wordL (string anFun) 
+        | :? BlockStatement -> astChildrenCashed |> List.map past |> aboveListL 
+        //Expressions
+        | :? InvocationExpression as expr -> invocExprLayout(expr)
+        | :? FSListExpression as  expr -> wordL (string expr)
+        //      
         | :? Identifier as id -> wordL id.Name
+        | :? MethodDeclaration as mDecl -> methodDeclLayout mDecl
         | :? NamespaceDeclaration as nmsp -> namespaceLayout nmsp
         | :? PrimitiveExpression -> ast.ToString() |> wordL
         | :? PropertyDeclaration as pDecl -> propDeclLayout pDecl

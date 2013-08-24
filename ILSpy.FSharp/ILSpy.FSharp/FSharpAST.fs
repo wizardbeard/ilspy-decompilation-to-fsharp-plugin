@@ -8,8 +8,58 @@ open ICSharpCode.Decompiler
 open ICSharpCode.Decompiler.Ast
 open ICSharpCode.NRefactory.CSharp
 open ICSharpCode.NRefactory
+open System.Diagnostics
+open System.Collections.Generic
+
+(*[<AbstractClassAttribute>]
+[<AllowNullLiteralAttribute>]
+type public AstNode() =
+    
+    (*abstract parent : AstNode
+    abstract prevSibling : AstNode
+    abstract nextSibling : AstNode
+    abstract firstChild : AstNode*)
+    //abstract lastChild : AstNode
+    
+    member val firstChild : AstNode = null
+        with get, set  
+    member val parent : AstNode = null
+        with get, set 
+    member val prevSibling : AstNode = null
+        with get, set 
+    member val nextSibling : AstNode = null
+        with get, set 
+
+    member public this.Children
+        with get() : IEnumerable<AstNode> =
+            let rec x (firstChild : AstNode) = 
+                seq{
+                    let y = firstChild = this
+                    Debug.Assert(y)
+                    yield firstChild; yield! x firstChild.nextSibling}
+            x this.firstChild
 
 
+type public SyntaxTree() = 
+    inherit AstNode()
+
+[<AbstractClassAttribute>]
+type public EntityDeclaration() =
+    inherit AstNode()
+    member val name = "" with get, set
+
+type public ModuleDeclaration() =
+    inherit EntityDeclaration()
+
+    
+
+type public ClassDeclaration() =
+    inherit EntityDeclaration()
+
+type public PropertyDeclaration() =
+    inherit EntityDeclaration()
+
+*)
 let  AddChild (parent: AstNode) (child : AstNode) =
     let clone = child.Clone()
     match clone with
@@ -19,7 +69,7 @@ let  AddChild (parent: AstNode) (child : AstNode) =
     | :? Identifier as x          -> parent.AddChild<Identifier>( x, child.Role :?> _ )
     | _ -> ()
 
-type private deleteThisRefVisitor() =
+type deleteThisRefVisitor() =
     inherit DepthFirstAstVisitor()
     
     override this.VisitMemberReferenceExpression(memRef) =
@@ -102,8 +152,34 @@ type public FSListExpression(fsList : AstNode list) =
     
     default this.NodeType
         with get() = NodeType.Expression
+ 
+ type public AnonymousFunction() =
+    inherit Expression()
 
+    member public this.parameters
+        with get() = this.GetChildrenByRole(Roles.Parameter)
+    member public this.body
+        with get() = this.GetChildByRole(Roles.Expression)
+
+    override this.AcceptVisitor (visitor : IAstVisitor)=
+        this.body.AcceptVisitor visitor ///dummy
+
+    override this.AcceptVisitor<'T> (visitor : IAstVisitor<'T>) =
+        Unchecked.defaultof<'T> ///dummy
+
+    override this.AcceptVisitor<'T, 'S> (visitor : IAstVisitor<'T, 'S>, data : 'T) =
+        Unchecked.defaultof<'S>
+
+    override this.DoMatch (other: AstNode, match' : ICSharpCode.NRefactory.PatternMatching.Match) =
+        true //dummy
+    
+    default this.NodeType
+        with get() = NodeType.Unknown
+
+    override this.ToString() =
+        (this.parameters |> Seq.map (fun x -> " " + x.Name) |> (Seq.fold (+)) "fun") + " -> " + string this.body
         
+
 (*module public Visitors
     
 type public FSAstVisitor =

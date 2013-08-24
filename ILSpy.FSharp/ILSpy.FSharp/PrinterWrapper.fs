@@ -27,6 +27,12 @@ let inline (-+) l r =
         l output
         r output
 
+let inline (+-) l r =
+    fun (output: ITextOutput) ->
+        l output
+        output.Write(", ")
+        r output
+
 let fold b = 
     fun (output:ITextOutput) ->    
         output.MarkFoldStart()

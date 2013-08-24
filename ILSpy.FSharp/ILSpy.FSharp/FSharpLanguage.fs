@@ -62,7 +62,7 @@ type FSharpLanguage() as this =
             
             output.WriteLine("Children " + b.SyntaxTree.Children.Count().ToString())
             let printer = new FSharpASTPrinter()
-            printer.PrintWhatIsThere b.SyntaxTree output
+            //printer.PrintWhatIsThere b.SyntaxTree output
             printer.PrintAST b.SyntaxTree output
 
 
@@ -103,7 +103,7 @@ type FSharpLanguage() as this =
         //output.WriteLine("Decompiled AST has " + b.SyntaxTree.DescendantsAndSelf.Count().ToString() + " nodes")
 
         let printer = new FSharpASTPrinter()
-        printer.PrintWhatIsThere b.SyntaxTree output
+        //printer.PrintWhatIsThere b.SyntaxTree output
         printer.PrintAST b.SyntaxTree output
 
 
