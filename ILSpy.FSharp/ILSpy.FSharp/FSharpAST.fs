@@ -148,7 +148,11 @@ type public FSListExpression(fsList : AstNode list) =
     override this.DoMatch (other: AstNode, match' : ICSharpCode.NRefactory.PatternMatching.Match) =
         true //dummy
 
-    override this.ToString() = string this.body
+    override this.ToString() = 
+        let (++) x y =
+            x + ";" + y
+        let first = ref true
+        (this.body |> List.map (fun x -> string x) |> List.fold (fun x y -> if !first then first := false; x + y else x ++ y) "[") + "]"
     
     default this.NodeType
         with get() = NodeType.Expression
