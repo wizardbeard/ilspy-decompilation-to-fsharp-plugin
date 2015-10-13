@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{457927E0-8F6D-41AF-AD07-7D620CDBE75E}"
-EndProject
+# Visual Studio 2012
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ILSpy.FSharp", "ILSpy.FSharp\ILSpy.FSharp.fsproj", "{D47CEEC0-CE96-42D0-9208-35B436E1A588}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ILSpy.Fsharp.Tests", "ILSpy.Fsharp.Tests\ILSpy.Fsharp.Tests.fsproj", "{F8E87AD1-7487-4D3D-9587-20F97142FAA1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{457927E0-8F6D-41AF-AD07-7D620CDBE75E}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SimpleClass", "SimpleClass\SimpleClass.fsproj", "{FF6F28DC-065C-48DD-816B-992AB76F37EE}"
 EndProject

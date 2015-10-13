@@ -1,7 +1,7 @@
 ﻿module ILSpy.FSharp.DynamicCompilstionHelper
 
 open System.CodeDom.Compiler 
-open FSharp.Compiler.CodeDom
+open Microsoft.FSharp.Compiler.CodeDom
 open System.IO
 
 let private compile code assemblies outFile =
